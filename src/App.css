@@ -86,6 +86,29 @@ body {
   flex-shrink: 0;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-share {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-share:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
 .btn-clear {
   background: transparent;
   color: var(--negative);
@@ -102,6 +125,47 @@ body {
 .btn-clear:hover {
   background: var(--negative-bg);
   border-color: var(--negative);
+}
+
+.share-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  color: var(--text-primary);
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  font-size: 0.9rem;
+  max-width: min(90vw, 420px);
+  text-align: center;
+}
+
+.share-banner {
+  background: var(--accent-glow);
+  border: 1px solid rgba(79, 140, 255, 0.35);
+  color: var(--accent);
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.share-banner-snapshot {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+}
+
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
 }
 
 .stat-label {
@@ -552,6 +616,15 @@ body {
   .header-actions {
     align-items: flex-start;
     width: 100%;
+  }
+
+  .header-buttons {
+    width: 100%;
+  }
+
+  .header-buttons .btn-share,
+  .header-buttons .btn-clear {
+    flex: 1;
   }
 
   .expense-fields {

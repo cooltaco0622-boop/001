@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { Expense, Person } from './types'
 import {
   calculateBalances,
   calculateSettlements,
   createId,
 } from './utils/settlement'
+import { useBillSync } from './hooks/useBillSync'
+import { getRoomIdFromUrl, getSnapshotFromUrl } from './lib/share'
 import './App.css'
 
 const DEFAULT_NAMES = ['雅勻', '阿章', '阿佳']
@@ -39,8 +41,37 @@ function getBootState() {
 }
 
 export default function App() {
-  const [people, setPeople] = useState<Person[]>(() => getBootState().people)
-  const [expenses, setExpenses] = useState<Expense[]>(() => getBootState().expenses)
+  const snapshot = getSnapshotFromUrl()
+  const hasRoomInUrl = Boolean(getRoomIdFromUrl())
+  const [people, setPeople] = useState<Person[]>(() => {
+    if (snapshot) return snapshot.people
+    if (hasRoomInUrl) return []
+    return getBootState().people
+  })
+  const [expenses, setExpenses] = useState<Expense[]>(() => {
+    if (snapshot) return snapshot.expenses
+    if (hasRoomInUrl) return []
+    return getBootState().expenses
+  })
+
+  const onRemoteUpdate = useCallback(
+    (data: { people: Person[]; expenses: Expense[] }) => {
+      bootState = data
+      setPeople(data.people)
+      setExpenses(data.expenses)
+    },
+    [],
+  )
+
+  const {
+    roomId,
+    isShared,
+    isLoading,
+    isFirebaseReady,
+    shareStatus,
+    shareBill,
+    syncNow,
+  } = useBillSync({ people, expenses, onRemoteUpdate })
 
   const balances = useMemo(
     () => calculateBalances(people, expenses),
@@ -157,6 +188,15 @@ export default function App() {
     bootState = fresh
     setPeople(fresh.people)
     setExpenses(fresh.expenses)
+    if (isShared) void syncNow(fresh)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="app app-loading">
+        <p>正在載入分享的分帳資料…</p>
+      </div>
+    )
   }
 
   return (
@@ -171,11 +211,30 @@ export default function App() {
             <span className="stat-label">總花費</span>
             <span className="stat-value">${totalAmount.toLocaleString()}</span>
           </div>
-          <button type="button" className="btn btn-clear" onClick={clearAll}>
-            一鍵清除
-          </button>
+          <div className="header-buttons">
+            <button type="button" className="btn btn-share" onClick={shareBill}>
+              {isShared ? '複製分享連結' : '分享連結'}
+            </button>
+            <button type="button" className="btn btn-clear" onClick={clearAll}>
+              一鍵清除
+            </button>
+          </div>
         </div>
       </header>
+
+      {shareStatus && <div className="share-toast">{shareStatus}</div>}
+
+      {isShared && isFirebaseReady && (
+        <div className="share-banner">
+          協作編輯中 · 房間 {roomId} · 變更會即時同步
+        </div>
+      )}
+
+      {snapshot && !isFirebaseReady && (
+        <div className="share-banner share-banner-snapshot">
+          快照連結 · 可編輯但目前不會即時同步給其他人
+        </div>
+      )}
 
       <main className="main">
         <div className="people-sections">
