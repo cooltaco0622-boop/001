@@ -138,6 +138,35 @@ body {
   cursor: not-allowed;
 }
 
+.btn-overwrite {
+  background: transparent;
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-overwrite:hover:not(:disabled) {
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.btn-overwrite:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.active-archive-hint {
+  width: 100%;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 .btn-archives {
   background: transparent;
   color: var(--text-secondary);
@@ -211,6 +240,11 @@ body {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+}
+
+.archive-item.active {
+  border-color: var(--accent);
+  background: var(--accent-glow);
 }
 
 .archive-meta {
@@ -765,6 +799,7 @@ body {
   .header-buttons .btn-clear,
   .header-buttons .btn-refresh,
   .header-buttons .btn-save,
+  .header-buttons .btn-overwrite,
   .header-buttons .btn-archives {
     flex: 1 1 calc(50% - 4px);
   }

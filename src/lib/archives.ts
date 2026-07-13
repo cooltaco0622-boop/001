@@ -55,6 +55,30 @@ export async function createArchive(
   return archive
 }
 
+export async function overwriteArchive(
+  id: string,
+  name: string,
+  createdAt: number,
+  people: Person[],
+  expenses: Expense[],
+): Promise<ArchiveSave> {
+  const db = getFirebaseDatabase()
+  if (!db || !isFirebaseConfigured()) {
+    throw new Error('存檔功能尚未設定')
+  }
+
+  const archive: ArchiveSave = {
+    id,
+    name,
+    createdAt,
+    people,
+    expenses,
+  }
+
+  await set(ref(db, `archives/${id}`), archive)
+  return archive
+}
+
 export async function deleteArchive(id: string): Promise<void> {
   const db = getFirebaseDatabase()
   if (!db || !isFirebaseConfigured()) {

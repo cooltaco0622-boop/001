@@ -71,6 +71,7 @@ export default function App() {
   } = useBillSync({ people, expenses, onRemoteUpdate })
 
   const [toast, setToast] = useState<string | null>(null)
+  const [clearSignal, setClearSignal] = useState(0)
 
   const showToast = useCallback((message: string) => {
     setToast(message)
@@ -202,6 +203,7 @@ export default function App() {
     bootState = fresh
     setPeople(fresh.people)
     setExpenses(fresh.expenses)
+    setClearSignal((n) => n + 1)
     if (isShared) void syncNow(fresh)
   }
 
@@ -241,6 +243,7 @@ export default function App() {
               expenses={expenses}
               onLoad={loadArchive}
               onStatus={showToast}
+              clearSignal={clearSignal}
             />
             <button type="button" className="btn btn-share" onClick={shareBill}>
               {isShared ? '複製分享連結' : '分享連結'}
