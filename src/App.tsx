@@ -219,7 +219,7 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div className="header-content">
-          <h1>分帳計算器</h1>
+          <h1>夾層之家支出記帳本</h1>
           <p>依人員填寫代付項目，自動計算平攤結果</p>
         </div>
         <div className="header-actions">
