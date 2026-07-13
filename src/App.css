@@ -219,6 +219,56 @@ body {
   padding-left: 28px;
 }
 
+/* People sections */
+.people-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.person-card {
+  margin-bottom: 0;
+}
+
+.person-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.person-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.person-name-input {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.person-expenses {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-add-expense {
+  width: 100%;
+}
+
+.btn-add-person {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
 /* People */
 .people-grid {
   display: flex;
@@ -275,9 +325,17 @@ body {
 
 .expense-fields {
   display: grid;
-  grid-template-columns: 1fr 120px 140px;
+  grid-template-columns: 1fr 140px;
   gap: 12px;
   margin-bottom: 16px;
+}
+
+.field-grow {
+  min-width: 0;
+}
+
+.field-amount {
+  flex-shrink: 0;
 }
 
 .field label {
