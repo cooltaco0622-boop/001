@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { onValue, ref, set } from 'firebase/database'
+import { get, ref, set } from 'firebase/database'
 import type { Expense, Person } from '../types'
 import { getFirebaseDatabase, isFirebaseConfigured } from '../lib/firebase'
 import {
   buildShareUrl,
-  buildSnapshotUrl,
   copyToClipboard,
   createRoomId,
   getRoomIdFromUrl,
   type BillData,
 } from '../lib/share'
 
-const SYNC_DEBOUNCE_MS = 400
+const SAVE_DEBOUNCE_MS = 500
 
 interface UseBillSyncOptions {
   people: Person[]
@@ -26,9 +25,10 @@ export function useBillSync({ people, expenses, onRemoteUpdate }: UseBillSyncOpt
   const [isLoading, setIsLoading] = useState(
     Boolean(initialRoomId && isFirebaseConfigured()),
   )
-  const skipPushRef = useRef(false)
-  const pushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const latestDataRef = useRef({ people, expenses })
+  const hasLoadedRef = useRef(false)
 
   latestDataRef.current = { people, expenses }
 
@@ -44,94 +44,95 @@ export function useBillSync({ people, expenses, onRemoteUpdate }: UseBillSyncOpt
     return true
   }, [])
 
+  const loadFromRoom = useCallback(
+    async (targetRoomId: string) => {
+      const db = getFirebaseDatabase()
+      if (!db) return false
+
+      const snapshot = await get(ref(db, `rooms/${targetRoomId}`))
+      const value = snapshot.val() as BillData | null
+      if (!value?.people || !value?.expenses) return false
+
+      onRemoteUpdate({ people: value.people, expenses: value.expenses })
+      return true
+    },
+    [onRemoteUpdate],
+  )
+
   useEffect(() => {
     if (!roomId || !isFirebaseConfigured()) {
       setIsLoading(false)
       return
     }
 
-    const db = getFirebaseDatabase()
-    if (!db) {
-      setIsLoading(false)
-      return
-    }
-
-    const roomRef = ref(db, `rooms/${roomId}`)
-    const unsubscribe = onValue(
-      roomRef,
-      (snapshot) => {
+    hasLoadedRef.current = false
+    void loadFromRoom(roomId)
+      .finally(() => {
+        hasLoadedRef.current = true
         setIsLoading(false)
-        const value = snapshot.val() as BillData | null
-        if (!value?.people || !value?.expenses) return
-
-        skipPushRef.current = true
-        onRemoteUpdate({ people: value.people, expenses: value.expenses })
-      },
-      () => setIsLoading(false),
-    )
-
-    return () => unsubscribe()
-  }, [roomId, onRemoteUpdate])
+      })
+  }, [roomId, loadFromRoom])
 
   useEffect(() => {
-    if (!roomId || !isFirebaseConfigured() || skipPushRef.current || isLoading) {
-      skipPushRef.current = false
+    if (!roomId || !isFirebaseConfigured() || isLoading || !hasLoadedRef.current) {
       return
     }
 
-    if (pushTimerRef.current) clearTimeout(pushTimerRef.current)
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
 
-    pushTimerRef.current = setTimeout(() => {
+    saveTimerRef.current = setTimeout(() => {
       void pushToRoom(roomId, {
         ...latestDataRef.current,
         updatedAt: Date.now(),
       })
-    }, SYNC_DEBOUNCE_MS)
+    }, SAVE_DEBOUNCE_MS)
 
     return () => {
-      if (pushTimerRef.current) clearTimeout(pushTimerRef.current)
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
     }
   }, [people, expenses, roomId, pushToRoom, isLoading])
 
   const shareBill = useCallback(async () => {
-    const data = latestDataRef.current
-
-    if (isFirebaseConfigured()) {
-      const targetRoomId = roomId ?? createRoomId()
-      const ok = await pushToRoom(targetRoomId, { ...data, updatedAt: Date.now() })
-      if (!ok) {
-        showStatus('分享失敗，請稍後再試')
-        return
-      }
-
-      if (!roomId) {
-        setRoomId(targetRoomId)
-        window.history.replaceState(null, '', buildShareUrl(targetRoomId))
-      }
-
-      const shareUrl = buildShareUrl(targetRoomId)
-      const copied = await copyToClipboard(shareUrl)
-      showStatus(
-        copied
-          ? '連結已複製！對方可即時查看與編輯'
-          : `請複製連結：${shareUrl}`,
-      )
+    if (!isFirebaseConfigured()) {
+      showStatus('分享功能尚未設定，請先設定 Firebase')
       return
     }
 
-    const shareUrl = buildSnapshotUrl(data)
+    const data = latestDataRef.current
+    const targetRoomId = roomId ?? createRoomId()
+    const ok = await pushToRoom(targetRoomId, { ...data, updatedAt: Date.now() })
+
+    if (!ok) {
+      showStatus('分享失敗，請稍後再試')
+      return
+    }
+
+    if (!roomId) {
+      setRoomId(targetRoomId)
+      window.history.replaceState(null, '', buildShareUrl(targetRoomId))
+    }
+
+    const shareUrl = buildShareUrl(targetRoomId)
     const copied = await copyToClipboard(shareUrl)
     showStatus(
       copied
-        ? '連結已複製！（快照模式，編輯不會即時同步）'
+        ? '連結已複製！重新整理可看最新內容'
         : `請複製連結：${shareUrl}`,
     )
   }, [roomId, pushToRoom, showStatus])
 
+  const refreshFromRoom = useCallback(async () => {
+    if (!roomId || !isFirebaseConfigured()) return
+
+    setIsRefreshing(true)
+    const ok = await loadFromRoom(roomId)
+    setIsRefreshing(false)
+    showStatus(ok ? '已載入最新資料' : '找不到分享資料')
+  }, [roomId, loadFromRoom, showStatus])
+
   const syncNow = useCallback(
     async (data: Pick<BillData, 'people' | 'expenses'>) => {
       if (!roomId || !isFirebaseConfigured()) return
-      skipPushRef.current = true
       await pushToRoom(roomId, { ...data, updatedAt: Date.now() })
     },
     [roomId, pushToRoom],
@@ -141,9 +142,11 @@ export function useBillSync({ people, expenses, onRemoteUpdate }: UseBillSyncOpt
     roomId,
     isShared: Boolean(roomId),
     isLoading,
+    isRefreshing,
     isFirebaseReady: isFirebaseConfigured(),
     shareStatus,
     shareBill,
+    refreshFromRoom,
     syncNow,
   }
 }

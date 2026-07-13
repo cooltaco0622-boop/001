@@ -6,7 +6,7 @@ import {
   createId,
 } from './utils/settlement'
 import { useBillSync } from './hooks/useBillSync'
-import { getRoomIdFromUrl, getSnapshotFromUrl } from './lib/share'
+import { getRoomIdFromUrl } from './lib/share'
 import './App.css'
 
 const DEFAULT_NAMES = ['雅勻', '阿章', '阿佳']
@@ -41,18 +41,13 @@ function getBootState() {
 }
 
 export default function App() {
-  const snapshot = getSnapshotFromUrl()
   const hasRoomInUrl = Boolean(getRoomIdFromUrl())
-  const [people, setPeople] = useState<Person[]>(() => {
-    if (snapshot) return snapshot.people
-    if (hasRoomInUrl) return []
-    return getBootState().people
-  })
-  const [expenses, setExpenses] = useState<Expense[]>(() => {
-    if (snapshot) return snapshot.expenses
-    if (hasRoomInUrl) return []
-    return getBootState().expenses
-  })
+  const [people, setPeople] = useState<Person[]>(() =>
+    hasRoomInUrl ? [] : getBootState().people,
+  )
+  const [expenses, setExpenses] = useState<Expense[]>(() =>
+    hasRoomInUrl ? [] : getBootState().expenses,
+  )
 
   const onRemoteUpdate = useCallback(
     (data: { people: Person[]; expenses: Expense[] }) => {
@@ -67,9 +62,10 @@ export default function App() {
     roomId,
     isShared,
     isLoading,
-    isFirebaseReady,
+    isRefreshing,
     shareStatus,
     shareBill,
+    refreshFromRoom,
     syncNow,
   } = useBillSync({ people, expenses, onRemoteUpdate })
 
@@ -212,6 +208,16 @@ export default function App() {
             <span className="stat-value">${totalAmount.toLocaleString()}</span>
           </div>
           <div className="header-buttons">
+            {isShared && (
+              <button
+                type="button"
+                className="btn btn-refresh"
+                onClick={refreshFromRoom}
+                disabled={isRefreshing}
+              >
+                {isRefreshing ? '載入中…' : '重新整理'}
+              </button>
+            )}
             <button type="button" className="btn btn-share" onClick={shareBill}>
               {isShared ? '複製分享連結' : '分享連結'}
             </button>
@@ -224,15 +230,9 @@ export default function App() {
 
       {shareStatus && <div className="share-toast">{shareStatus}</div>}
 
-      {isShared && isFirebaseReady && (
+      {isShared && (
         <div className="share-banner">
-          協作編輯中 · 房間 {roomId} · 變更會即時同步
-        </div>
-      )}
-
-      {snapshot && !isFirebaseReady && (
-        <div className="share-banner share-banner-snapshot">
-          快照連結 · 可編輯但目前不會即時同步給其他人
+          分享連結 · 房間 {roomId} · 重新整理可看最新內容
         </div>
       )}
 

@@ -91,6 +91,29 @@ body {
   gap: 8px;
 }
 
+.btn-refresh {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-share {
   background: var(--accent-glow);
   color: var(--accent);
@@ -153,12 +176,6 @@ body {
   font-size: 0.85rem;
   text-align: center;
   margin-bottom: 20px;
-}
-
-.share-banner-snapshot {
-  background: rgba(251, 191, 36, 0.1);
-  border-color: rgba(251, 191, 36, 0.35);
-  color: #fbbf24;
 }
 
 .app-loading {
@@ -623,7 +640,8 @@ body {
   }
 
   .header-buttons .btn-share,
-  .header-buttons .btn-clear {
+  .header-buttons .btn-clear,
+  .header-buttons .btn-refresh {
     flex: 1;
   }
 
