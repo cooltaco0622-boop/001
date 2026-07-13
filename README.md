@@ -17,9 +17,17 @@ npm install
 npm run dev
 ```
 
+本地開發請開啟 http://localhost:5173/
+
 ## 建置
 
 ```bash
 npm run build
 npm run preview
 ```
+
+## 線上部署（GitHub Pages）
+
+此專案透過 GitHub Actions 自動建置並部署。請在 GitHub 倉庫設定中，將 Pages 來源改為 **GitHub Actions**（Settings → Pages → Build and deployment → Source: GitHub Actions）。
+
+網址：https://cooltaco0622-boop.github.io/001/
