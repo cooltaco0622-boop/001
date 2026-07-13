@@ -1,17 +1,19 @@
 {
   "rules": {
+    ".read": false,
+    ".write": false,
     "rooms": {
       "$roomId": {
         ".read": true,
         ".write": true,
-        ".validate": "newData.hasChildren(['people', 'expenses', 'updatedAt'])"
+        ".validate": "newData.hasChildren(['people', 'expenses', 'updatedAt']) && newData.child('updatedAt').isNumber()"
       }
     },
     "archives": {
       "$archiveId": {
         ".read": true,
         ".write": true,
-        ".validate": "newData.hasChildren(['id', 'name', 'createdAt', 'people', 'expenses'])"
+        ".validate": "newData.hasChildren(['id', 'name', 'createdAt', 'people', 'expenses']) && newData.child('id').isString() && newData.child('name').isString() && newData.child('createdAt').isNumber()"
       }
     }
   }

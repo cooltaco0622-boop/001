@@ -18,27 +18,16 @@
 
 > 分享功能需設定 Firebase Realtime Database 儲存資料（見下方說明）
 
-### 設定 Firebase（分享功能必要）
+### 設定 Firebase（分享／存檔必要）
 
 1. 至 [Firebase Console](https://console.firebase.google.com/) 建立專案
-2. 建立 **Realtime Database**（測試模式即可）
-3. 複製專案設定到 `.env`（參考 `.env.example`）
-4. 在 GitHub 倉庫 Settings → Secrets 新增相同變數，供部署使用
+2. 建立 **Realtime Database**
+3. 在 **Realtime Database → 規則** 貼上本專案的 `database.rules.json` 內容並發布
+4. 複製專案網頁設定到程式（或設為 GitHub Secrets）
 
-Realtime Database 規則範例：
+正式規則只允許存取 `rooms`（分享）與 `archives`（存檔），其他路徑一律拒絕。
 
-```json
-{
-  "rules": {
-    "rooms": {
-      "$roomId": {
-        ".read": true,
-        ".write": true
-      }
-    }
-  }
-}
-```
+Realtime Database 正式規則內容見倉庫根目錄 `database.rules.json`。
 
 ## 開發
 
