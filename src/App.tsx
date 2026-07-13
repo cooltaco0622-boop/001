@@ -7,6 +7,7 @@ import {
 } from './utils/settlement'
 import { useBillSync } from './hooks/useBillSync'
 import { getRoomIdFromUrl } from './lib/share'
+import ArchiveManager from './components/ArchiveManager'
 import './App.css'
 
 const DEFAULT_NAMES = ['雅勻', '阿章', '阿佳']
@@ -68,6 +69,23 @@ export default function App() {
     refreshFromRoom,
     syncNow,
   } = useBillSync({ people, expenses, onRemoteUpdate })
+
+  const [toast, setToast] = useState<string | null>(null)
+
+  const showToast = useCallback((message: string) => {
+    setToast(message)
+    window.setTimeout(() => setToast(null), 4000)
+  }, [])
+
+  const loadArchive = useCallback(
+    (data: { people: Person[]; expenses: Expense[] }) => {
+      bootState = data
+      setPeople(data.people)
+      setExpenses(data.expenses)
+      if (isShared) void syncNow(data)
+    },
+    [isShared, syncNow],
+  )
 
   const balances = useMemo(
     () => calculateBalances(people, expenses),
@@ -218,6 +236,12 @@ export default function App() {
                 {isRefreshing ? '載入中…' : '重新整理'}
               </button>
             )}
+            <ArchiveManager
+              people={people}
+              expenses={expenses}
+              onLoad={loadArchive}
+              onStatus={showToast}
+            />
             <button type="button" className="btn btn-share" onClick={shareBill}>
               {isShared ? '複製分享連結' : '分享連結'}
             </button>
@@ -228,7 +252,9 @@ export default function App() {
         </div>
       </header>
 
-      {shareStatus && <div className="share-toast">{shareStatus}</div>}
+      {(toast || shareStatus) && (
+        <div className="share-toast">{toast || shareStatus}</div>
+      )}
 
       {isShared && (
         <div className="share-banner">

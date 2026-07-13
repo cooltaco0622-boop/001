@@ -89,6 +89,8 @@ body {
 .header-buttons {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .btn-refresh {
@@ -112,6 +114,125 @@ body {
 .btn-refresh:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btn-save {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--positive);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-save:hover:not(:disabled) {
+  background: rgba(52, 211, 153, 0.22);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-archives {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-archives:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-panel {
+  width: min(520px, 100%);
+  max-height: min(80vh, 640px);
+  overflow: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h2 {
+  font-size: 1.1rem;
+}
+
+.modal-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 28px 12px;
+}
+
+.archive-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.archive-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.archive-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.archive-name {
+  font-weight: 600;
+}
+
+.archive-summary {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.archive-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .btn-share {
@@ -637,11 +758,27 @@ body {
 
   .header-buttons {
     width: 100%;
+    flex-wrap: wrap;
   }
 
   .header-buttons .btn-share,
   .header-buttons .btn-clear,
-  .header-buttons .btn-refresh {
+  .header-buttons .btn-refresh,
+  .header-buttons .btn-save,
+  .header-buttons .btn-archives {
+    flex: 1 1 calc(50% - 4px);
+  }
+
+  .archive-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .archive-actions {
+    width: 100%;
+  }
+
+  .archive-actions .btn {
     flex: 1;
   }
 
