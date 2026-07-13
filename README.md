@@ -19,6 +19,8 @@ npm run dev
 
 本地開發請開啟 http://localhost:5173/
 
+開發時會自動使用 `index.template.html` 作為入口檔。
+
 ## 建置
 
 ```bash
