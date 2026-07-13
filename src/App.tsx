@@ -7,7 +7,7 @@ import {
 } from './utils/settlement'
 import './App.css'
 
-const DEFAULT_NAMES = ['小明', '小華', '小美']
+const DEFAULT_NAMES = ['雅勻', '阿章', '阿佳']
 
 function createDefaultPeople(): Person[] {
   return DEFAULT_NAMES.map((name) => ({ id: createId(), name }))
@@ -23,7 +23,7 @@ function createDefaultExpense(payerId: string, people: Person[]): Expense {
   }
 }
 
-function createInitialState() {
+function createFreshState() {
   const people = createDefaultPeople()
   return {
     people,
@@ -31,16 +31,16 @@ function createInitialState() {
   }
 }
 
-let initialState: ReturnType<typeof createInitialState> | null = null
+let bootState: ReturnType<typeof createFreshState> | null = null
 
-function getInitialState() {
-  if (!initialState) initialState = createInitialState()
-  return initialState
+function getBootState() {
+  if (!bootState) bootState = createFreshState()
+  return bootState
 }
 
 export default function App() {
-  const [people, setPeople] = useState<Person[]>(() => getInitialState().people)
-  const [expenses, setExpenses] = useState<Expense[]>(() => getInitialState().expenses)
+  const [people, setPeople] = useState<Person[]>(() => getBootState().people)
+  const [expenses, setExpenses] = useState<Expense[]>(() => getBootState().expenses)
 
   const balances = useMemo(
     () => calculateBalances(people, expenses),
@@ -151,6 +151,14 @@ export default function App() {
     )
   }
 
+  const clearAll = () => {
+    if (!window.confirm('確定要清除所有已輸入的資料嗎？')) return
+    const fresh = createFreshState()
+    bootState = fresh
+    setPeople(fresh.people)
+    setExpenses(fresh.expenses)
+  }
+
   return (
     <div className="app">
       <header className="header">
@@ -158,9 +166,14 @@ export default function App() {
           <h1>分帳計算器</h1>
           <p>依人員填寫代付項目，自動計算平攤結果</p>
         </div>
-        <div className="header-stat">
-          <span className="stat-label">總花費</span>
-          <span className="stat-value">${totalAmount.toLocaleString()}</span>
+        <div className="header-actions">
+          <div className="header-stat">
+            <span className="stat-label">總花費</span>
+            <span className="stat-value">${totalAmount.toLocaleString()}</span>
+          </div>
+          <button type="button" className="btn btn-clear" onClick={clearAll}>
+            一鍵清除
+          </button>
         </div>
       </header>
 

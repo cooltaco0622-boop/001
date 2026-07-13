@@ -78,6 +78,32 @@ body {
   flex-shrink: 0;
 }
 
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-clear {
+  background: transparent;
+  color: var(--negative);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-clear:hover {
+  background: var(--negative-bg);
+  border-color: var(--negative);
+}
+
 .stat-label {
   display: block;
   font-size: 0.75rem;
@@ -521,6 +547,11 @@ body {
 
   .header-stat {
     text-align: left;
+  }
+
+  .header-actions {
+    align-items: flex-start;
+    width: 100%;
   }
 
   .expense-fields {
