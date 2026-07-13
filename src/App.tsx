@@ -199,7 +199,7 @@ export default function App() {
   }
 
   const clearAll = () => {
-    if (!window.confirm('確定要清除並開啟全新頁面嗎？原本的分享房間不會被清空。')) {
+    if (!window.confirm('確定要開啟新記帳嗎？目前畫面會清空，原本的分享房間不會被影響。')) {
       return
     }
     leaveRoom()
@@ -252,7 +252,7 @@ export default function App() {
               {isShared ? '複製分享連結' : '分享連結'}
             </button>
             <button type="button" className="btn btn-clear" onClick={clearAll}>
-              一鍵清除
+              開新記帳
             </button>
           </div>
         </div>
