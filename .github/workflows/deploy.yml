@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare source index for build
+        run: cp index.template.html index.html
+
       - name: Build
         run: npm run build
 
