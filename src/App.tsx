@@ -422,6 +422,7 @@ export default function App() {
 
       <footer className="footer">
         <p>每個人員區塊填寫自己代付的項目，點選成員可調整分攤對象</p>
+        <p>分享連結後，其他人重新整理即可看到最新內容</p>
       </footer>
     </div>
   )
