@@ -68,6 +68,7 @@ export default function App() {
     shareBill,
     refreshFromRoom,
     syncNow,
+    leaveRoom,
   } = useBillSync({ people, expenses, onRemoteUpdate })
 
   const [toast, setToast] = useState<string | null>(null)
@@ -198,13 +199,15 @@ export default function App() {
   }
 
   const clearAll = () => {
-    if (!window.confirm('確定要清除所有已輸入的資料嗎？')) return
+    if (!window.confirm('確定要清除並開啟全新頁面嗎？原本的分享房間不會被清空。')) {
+      return
+    }
+    leaveRoom()
     const fresh = createFreshState()
     bootState = fresh
     setPeople(fresh.people)
     setExpenses(fresh.expenses)
     setClearSignal((n) => n + 1)
-    if (isShared) void syncNow(fresh)
   }
 
   if (isLoading) {

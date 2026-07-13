@@ -138,6 +138,18 @@ export function useBillSync({ people, expenses, onRemoteUpdate }: UseBillSyncOpt
     [roomId, pushToRoom],
   )
 
+  const leaveRoom = useCallback(() => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current)
+      saveTimerRef.current = null
+    }
+    setRoomId(null)
+    hasLoadedRef.current = false
+    const url = new URL(window.location.href)
+    url.searchParams.delete('room')
+    window.history.replaceState(null, '', `${url.pathname}${url.hash}`)
+  }, [])
+
   return {
     roomId,
     isShared: Boolean(roomId),
@@ -148,5 +160,6 @@ export function useBillSync({ people, expenses, onRemoteUpdate }: UseBillSyncOpt
     shareBill,
     refreshFromRoom,
     syncNow,
+    leaveRoom,
   }
 }
